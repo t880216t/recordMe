@@ -1,0 +1,35 @@
+<template>
+  <div>
+    // 地图中心默认是北京
+    <map scale="{{scale}}" coordtype="{{coordtype}}" markers="{{markers}}" groundoverlays="{{groundoverlays}}" polylines="{{polylines}}"
+      circles="{{circles}}">
+    </map>
+  </div>
+</template>
+<script>
+  const COORDTYPE = "wgs84"
+  const BEI_JING_WGS = { latitude: 39.9073728469, longitude: 116.3913445961, coordType: COORDTYPE }
+  const POINT1 = { latitude: 39.9069550115, longitude: 116.3932842749, coordType: COORDTYPE }
+  const POINT2 = { latitude: 39.9041694220, longitude: 116.3893937341, coordType: COORDTYPE }
+  export default {
+    private: {
+      scale: 17,
+      coordtype: COORDTYPE,
+      markers: [{
+        latitude: BEI_JING_WGS.latitude,
+        longitude: BEI_JING_WGS.longitude,
+        coordType: BEI_JING_WGS.coordType,
+        iconPath: "marker.png",
+        width: "100px"
+      }],
+      groundoverlays: [{
+        northEast: POINT1,
+        southWest: POINT2,
+        iconPath: "marker.png",
+        opacity: 0.5
+      }],
+      polylines: [{ points: [POINT1, POINT2] }],
+      circles: [{ latitude: POINT1.latitude, longitude: POINT2.longitude, coordType: COORDTYPE, radius: 50 }]
+    }
+  }
+</script>
