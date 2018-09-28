@@ -18,7 +18,7 @@
             <div class="item-li">
                 <text class="item-li-detail">给谁看</text>
                 <div class="picker">
-                    <picker type="text" range="{{range}}" value="{{text}}" selected="0" onchange="changeText"></picker>
+                    <picker type="text" range="{{range}}" value="{{showType}}" selected="0" onchange="changeText"></picker>
                 </div>
                 <image class="item_arrow_img" src="../Images/arrow-right.png"></image>
             </div>
@@ -108,16 +108,18 @@ import prompt from '@system.prompt'
 import media from '@system.media'
 import router from '@system.router'
 import share from '@system.share'
+import storage from '@system.storage'
+import fetch from '@system.fetch'
 
 export default {
   private: {
-    inputValue: '',
+    content: '',
     addphotoUri:'../Images/addphoto.png',
     photoUri:'',
     files:[],
     showAdd:true,
     range: ['对所有人公开', '仅自己可见', '对好友公开'],
-    text: '对所有人公开',
+    showType: '对所有人公开',
     titleBar: {
         'type': 'titleBar',
         'config': {
@@ -127,22 +129,32 @@ export default {
   },
   onInit () {
     // this.$page.setTitleBar({text: 'Input'})
-    this.inputValue = 'Hello, world!'
     this.$on('titleBarBack', function(evt){
         // 停止冒泡
         evt.stop()
         this.back()
-      })
-      this.$on('titleBarShare', function(evt){
+    })
+    this.$on('titleBarShare', function(evt){
         evt.stop()
         this.share()
-      })
+    })
+    storage.get({
+        key: 'islogin',
+        success: function (data) {
+            console.log('handling success')
+            console.log('++++++++',data)
+        },
+        fail: function (data, code) {
+            console.log(`handling fail, code = ${code}`)
+        }
+    })
+
   },
   valueChange (e) {
-    this.inputValue = e.text
+    this.content = e.text
   },
   changeText (e) {
-      this.text = e.newValue
+      this.showType = e.newValue
     },
   showClickPrompt (e) {
     prompt.showToast({
@@ -175,19 +187,38 @@ export default {
       router.back()
     },
     share () {
-      share.share({
-        type:'text/html',
-        data:'share',
-        success: function () {
-          console.info('handling success')
-        },
-        fail: function (erromsg, errocode) {
-          console.info(`### share.share ### ${errocode}: ${erromsg}`)
-          prompt.showToast({
-            message: `${errocode}: ${erromsg}`
-          })
+        if(this.content){
+            fetch.fetch({
+                url: 'http://192.168.0.106:5000/submitRecord',
+                method:'POST',
+                data:{
+                    "content":this.content,
+                    "showType":this.showType
+                },
+                success: function (response) {
+                    if(response){
+                        const res = JSON.parse(response.data)
+                        if (res.code === 0){
+                            prompt.showToast({
+                                message: '上传成功'
+                            })
+                            router.back()
+                        }else{
+                            prompt.showToast({
+                                message: res.msg
+                            })
+                        }
+                        
+                    }
+                    console.log(`the status code of the response: ${response.code}`)
+                    console.log(`the data of the response: ${response.data}`)
+                    console.log(`the headers of the response: ${JSON.stringify(response.headers)}`)
+                },
+                fail: function (err, code) {
+                    console.log(`handling fail, code = ${code}`)
+                }
+            })
         }
-      })
     }
 }
 
