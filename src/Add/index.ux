@@ -110,6 +110,7 @@ import router from '@system.router'
 import share from '@system.share'
 import storage from '@system.storage'
 import fetch from '@system.fetch'
+import request from '@system.request'
 
 export default {
   private: {
@@ -188,7 +189,50 @@ export default {
     },
     share () {
         if(this.content){
-            fetch.fetch({
+            if(this.files.length > 0){
+                request.upload({
+                url: 'http://192.168.0.106:5000/uploadRecordImages',
+                files: this.files,
+                success: function (data) {
+                    console.log('handling success')
+                    fetch.fetch({
+                        url: 'http://192.168.0.106:5000/submitRecord',
+                        method:'POST',
+                        data:{
+                            "content":this.content,
+                            "showType":this.showType,
+                            // "attachment_ids":JSON.stringify(data.attachment_ids)
+                        },
+                        success: function (response) {
+                            if(response){
+                                const res = JSON.parse(response.data)
+                                if (res.code === 0){
+                                    prompt.showToast({
+                                        message: '上传成功'
+                                    })
+                                    router.back()
+                                }else{
+                                    prompt.showToast({
+                                        message: res.msg
+                                    })
+                                }
+                                
+                            }
+                            console.log(`the status code of the response: ${response.code}`)
+                            console.log(`the data of the response: ${response.data}`)
+                            console.log(`the headers of the response: ${JSON.stringify(response.headers)}`)
+                        },
+                        fail: function (err, code) {
+                            console.log(`handling fail, code = ${code}`)
+                        }
+                    })
+                },
+                fail: function (data, code) {
+                    console.log(`handling fail, code = ${code}`)
+                }
+            })
+            }else{
+                fetch.fetch({
                 url: 'http://192.168.0.106:5000/submitRecord',
                 method:'POST',
                 data:{
@@ -218,6 +262,9 @@ export default {
                     console.log(`handling fail, code = ${code}`)
                 }
             })
+            }
+            
+            
         }
     }
 }
