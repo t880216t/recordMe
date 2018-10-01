@@ -7,11 +7,11 @@
             <textarea placeholder="请输入文本内容" rows="6" class="textarea" onchange="valueChange"></textarea>
         </div>
         <div class="item-image">
-            <div class="image-container" >
+            <div class="image-container">
                 <div for="{{files}}" style="width:30%">
                     <image src="{{$item.uri}}" class="image"></image>
                 </div>
-                <image src="{{addphotoUri}}" class="add-image" onclick="pickPhoto" show='{{showAdd}}' ></image>
+                <image src="{{addphotoUri}}" class="add-image" onclick="pickPhoto" show='{{showAdd}}'></image>
             </div>
         </div>
         <div class="item-atr">
@@ -26,247 +26,230 @@
     </div>
 </template>
 <style>
-.container{
-    flex-direction: column;
-}
+    .container {
+        flex-direction: column;
+    }
 
-.item-content{
-    padding-top:40px;
-    padding-left: 40px;
-    padding-bottom: 40px;
-    height: 300px;
-    max-height: 500px;
-}
+    .item-content {
+        padding-top: 40px;
+        padding-left: 40px;
+        padding-bottom: 40px;
+        height: 300px;
+        max-height: 500px;
+    }
 
-.textarea{
-    font-size: 35px;
-    padding-left:40px;
-    padding-right: 40px;
-}
+    .textarea {
+        font-size: 35px;
+        padding-left: 40px;
+        padding-right: 40px;
+    }
 
-.item-image{
-    min-height: 400px;
-    max-height: 800px;
-    flex-direction: column;
-    margin: 40px;
-    padding-top: 40px;
-    border-top-width: 1px;
-    border-color:#bbbbbb;
-}
+    .item-image {
+        min-height: 400px;
+        max-height: 800px;
+        flex-direction: column;
+        margin: 40px;
+        padding-top: 40px;
+        border-top-width: 1px;
+        border-color: #bbbbbb;
+    }
 
-.image-container{
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: center;
-}
+    .image-container {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 
-.image {
-    width: 200px;
-    height: 200px;
-    padding:5px;
-}
-.add-image {
-    width: 200px;
-    height: 200px;
-    padding:5px;
-}
-.item-atr{
-    margin: 40px;
-    border-top-width: 1px;
-    border-color:#bbbbbb;
-    flex-direction: column;
-}
-.item-li {
-    border-color: #bbbbbb;
-    border-bottom-width: 1px;
-    align-items: center;
-    flex:1;
-}
-.item-li:active {
-    background-color: #dfdfdf;
-}
-.item_arrow_img {
-    height: 40px;
-    width: 20px;
-    margin-right: 30px;
-    resize-mode: contain;
-}
-.item-li-detail {
-    padding-top: 25px;
-    padding-bottom: 25px;
-    color: #000000;
-    flex: 1;
-}
-.picker{
-    flex:1;
-    padding-right: 20px;
-    justify-content: flex-end;
-}
+    .image {
+        width: 200px;
+        height: 200px;
+        padding: 5px;
+    }
+
+    .add-image {
+        width: 200px;
+        height: 200px;
+        padding: 5px;
+    }
+
+    .item-atr {
+        margin: 40px;
+        border-top-width: 1px;
+        border-color: #bbbbbb;
+        flex-direction: column;
+    }
+
+    .item-li {
+        border-color: #bbbbbb;
+        border-bottom-width: 1px;
+        align-items: center;
+        flex: 1;
+    }
+
+    .item-li:active {
+        background-color: #dfdfdf;
+    }
+
+    .item_arrow_img {
+        height: 40px;
+        width: 20px;
+        margin-right: 30px;
+        resize-mode: contain;
+    }
+
+    .item-li-detail {
+        padding-top: 25px;
+        padding-bottom: 25px;
+        color: #000000;
+        flex: 1;
+    }
+
+    .picker {
+        flex: 1;
+        padding-right: 20px;
+        justify-content: flex-end;
+    }
 </style>
 <script>
-import prompt from '@system.prompt'
-import media from '@system.media'
-import router from '@system.router'
-import share from '@system.share'
-import storage from '@system.storage'
-import fetch from '@system.fetch'
-import request from '@system.request'
+    import prompt from '@system.prompt'
+    import media from '@system.media'
+    import router from '@system.router'
+    import share from '@system.share'
+    import storage from '@system.storage'
+    import fetch from '@system.fetch'
+    import request from '@system.request'
 
-export default {
-  private: {
-    content: '',
-    addphotoUri:'../Images/addphoto.png',
-    photoUri:'',
-    files:[],
-    showAdd:true,
-    range: ['对所有人公开', '仅自己可见', '对好友公开'],
-    showType: '对所有人公开',
-    titleBar: {
-        'type': 'titleBar',
-        'config': {
-          'title': ''
-        }
-      },
-  },
-  onInit () {
-    // this.$page.setTitleBar({text: 'Input'})
-    this.$on('titleBarBack', function(evt){
-        // 停止冒泡
-        evt.stop()
-        this.back()
-    })
-    this.$on('titleBarShare', function(evt){
-        evt.stop()
-        this.share()
-    })
-    storage.get({
-        key: 'islogin',
-        success: function (data) {
-            console.log('handling success')
-            console.log('++++++++',data)
+    export default {
+        private: {
+            content: '',
+            addphotoUri: '../Images/addphoto.png',
+            photoUri: '',
+            files: [],
+            showAdd: true,
+            range: ['对所有人公开', '仅自己可见', '对好友公开'],
+            showType: '对所有人公开',
+            titleBar: {
+                'type': 'titleBar',
+                'config': {
+                    'title': ''
+                }
+            },
         },
-        fail: function (data, code) {
-            console.log(`handling fail, code = ${code}`)
-        }
-    })
-
-  },
-  valueChange (e) {
-    this.content = e.text
-  },
-  changeText (e) {
-      this.showType = e.newValue
-    },
-  showClickPrompt (e) {
-    prompt.showToast({
-      message: e.target.attr.value
-    })
-  },
-  pickPhoto () {
-      const self = this
-      media.pickImage({
-        success: function (ret) {
-            const oldFiles = self.files
-            oldFiles.push(ret)
-            if(oldFiles.length === 9){
-                self.showAdd = false
-            }
-            self.files = oldFiles
-        },
-        fail: function (erromsg, errocode) {
-          console.info(`### media.pickImage ### ${errocode}: ${erromsg}`)
-          prompt.showToast({
-            message: `${errocode}: ${erromsg}`
-          })
-        }
-      })
-    },
-    back () {
-      prompt.showToast({
-        message: 'back'
-      })
-      router.back()
-    },
-    share () {
-        if(this.content){
-            if(this.files.length > 0){
-                request.upload({
-                url: 'http://192.168.0.106:5000/uploadRecordImages',
-                files: this.files,
+        onInit() {
+            // this.$page.setTitleBar({text: 'Input'})
+            this.$on('titleBarBack', function (evt) {
+                // 停止冒泡
+                evt.stop()
+                this.back()
+            })
+            this.$on('titleBarShare', function (evt) {
+                evt.stop()
+                this.submit()
+            })
+            storage.get({
+                key: 'islogin',
                 success: function (data) {
                     console.log('handling success')
-                    fetch.fetch({
-                        url: 'http://192.168.0.106:5000/submitRecord',
-                        method:'POST',
-                        data:{
-                            "content":this.content,
-                            "showType":this.showType,
-                            // "attachment_ids":JSON.stringify(data.attachment_ids)
-                        },
-                        success: function (response) {
-                            if(response){
-                                const res = JSON.parse(response.data)
-                                if (res.code === 0){
-                                    prompt.showToast({
-                                        message: '上传成功'
-                                    })
-                                    router.back()
-                                }else{
-                                    prompt.showToast({
-                                        message: res.msg
-                                    })
-                                }
-                                
-                            }
-                            console.log(`the status code of the response: ${response.code}`)
-                            console.log(`the data of the response: ${response.data}`)
-                            console.log(`the headers of the response: ${JSON.stringify(response.headers)}`)
-                        },
-                        fail: function (err, code) {
-                            console.log(`handling fail, code = ${code}`)
-                        }
-                    })
+                    console.log('++++++++', data)
                 },
                 fail: function (data, code) {
                     console.log(`handling fail, code = ${code}`)
                 }
             })
-            }else{
-                fetch.fetch({
-                url: 'http://192.168.0.106:5000/submitRecord',
-                method:'POST',
-                data:{
-                    "content":this.content,
-                    "showType":this.showType
+
+        },
+        valueChange(e) {
+            this.content = e.text
+        },
+        changeText(e) {
+            this.showType = e.newValue
+        },
+        showClickPrompt(e) {
+            prompt.showToast({
+                message: e.target.attr.value
+            })
+        },
+        pickPhoto() {
+            const self = this
+            media.pickImage({
+                success: function (ret) {
+                    const oldFiles = self.files
+                    oldFiles.push(ret)
+                    if (oldFiles.length === 9) {
+                        self.showAdd = false
+                    }
+                    self.files = oldFiles
+                },
+                fail: function (erromsg, errocode) {
+                    console.info(`### media.pickImage ### ${errocode}: ${erromsg}`)
+                    prompt.showToast({
+                        message: `${errocode}: ${erromsg}`
+                    })
+                }
+            })
+        },
+        back() {
+            prompt.showToast({
+                message: 'back'
+            })
+            router.back()
+        },
+        submitRecord(ids) {
+            let attachment_ids = ''
+            if (ids) {
+                attachment_ids = ids
+            }
+            fetch.fetch({
+                url: 'http://192.168.0.101:5000/submitRecord',
+                method: 'POST',
+                data: {
+                    "content": this.content,
+                    "showType": this.showType,
+                    "attachmentIds": attachment_ids
                 },
                 success: function (response) {
-                    if(response){
+                    if (response) {
                         const res = JSON.parse(response.data)
-                        if (res.code === 0){
+                        if (res.code === 0) {
                             prompt.showToast({
                                 message: '上传成功'
                             })
                             router.back()
-                        }else{
+                        } else {
                             prompt.showToast({
                                 message: res.msg
                             })
                         }
-                        
                     }
-                    console.log(`the status code of the response: ${response.code}`)
-                    console.log(`the data of the response: ${response.data}`)
-                    console.log(`the headers of the response: ${JSON.stringify(response.headers)}`)
                 },
                 fail: function (err, code) {
                     console.log(`handling fail, code = ${code}`)
                 }
             })
+        },
+        submit() {
+            if (this.content) {
+                let attachment_ids = ""
+                if (this.files.length > 0) {
+                    request.upload({
+                        url: 'http://192.168.0.101:5000/uploadRecordImages',
+                        files: this.files,
+                        success: function (response) {
+                            const data = JSON.parse(response.data)
+                            if (data.content.attachment_ids) {
+                                attachment_ids = data.content.attachment_ids
+                            }
+                            this.submitRecord(attachment_ids)
+                        }.bind(this),
+                        fail: function (data, code) {
+                            console.log(`handling fail, code = ${code}`)
+                        }
+                    })
+                } else {
+                    this.submitRecord(attachment_ids)
+                }
             }
-            
-            
         }
     }
-}
 
 </script>
