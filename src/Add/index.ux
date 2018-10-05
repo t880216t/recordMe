@@ -120,6 +120,10 @@
     import request from '@system.request'
 
     export default {
+        protected: {
+            latitude:'',
+            longitude:''
+        },
         private: {
             content: '',
             addphotoUri: '../Images/addphoto.png',
@@ -156,7 +160,9 @@
                     console.log(`handling fail, code = ${code}`)
                 }
             })
-
+        },
+        onShow(){
+            
         },
         valueChange(e) {
             this.content = e.text
@@ -200,12 +206,14 @@
                 attachment_ids = ids
             }
             fetch.fetch({
-                url: 'http://192.168.0.101:5000/submitRecord',
+                url: 'http://192.168.0.105:5000/submitRecord',
                 method: 'POST',
                 data: {
                     "content": this.content,
                     "showType": this.showType,
-                    "attachmentIds": attachment_ids
+                    "attachmentIds": attachment_ids,
+                    "lat": this.latitude,
+                    "lon": this.longitude
                 },
                 success: function (response) {
                     if (response) {
@@ -232,7 +240,7 @@
                 let attachment_ids = ""
                 if (this.files.length > 0) {
                     request.upload({
-                        url: 'http://192.168.0.101:5000/uploadRecordImages',
+                        url: 'http://192.168.0.105:5000/uploadRecordImages',
                         files: this.files,
                         success: function (response) {
                             const data = JSON.parse(response.data)

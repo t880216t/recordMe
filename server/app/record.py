@@ -26,6 +26,8 @@ def submitRecord():
     content = request.values.get("content")
     showType = request.values.get("showType")
     attachmentIds = request.values.get("attachmentIds")
+    lat = request.values.get("lat")
+    lon = request.values.get("lon")
     if content:
         # 连接
         db = MySQLdb.connect(database_host, database_username, database_password, database1)
@@ -36,8 +38,8 @@ def submitRecord():
         dbc.execute('SET CHARACTER SET utf8;')
         dbc.execute('SET character_set_connection=utf8;')
         # 入库
-        sql = 'insert into record_list (content,showType,attachmentIds) VALUES (%s,%s,%s)'
-        dbc.execute(sql, (content, showType,attachmentIds))
+        sql = 'insert into record_list (content,showType,attachmentIds,lat,lon) VALUES (%s,%s,%s,%s,%s)'
+        dbc.execute(sql, (content, showType,attachmentIds,lat,lon))
         db.commit()
         dbc.close()
         db.close()
@@ -86,3 +88,42 @@ def uploadRecordImages():
     else:
         response = cors_response({'code': 10001, 'msg': '上传失败'})
         return response
+
+@app.route("/getRecordList",methods=["POST","GET"])
+def getRecordList():
+    # 连接
+    db = MySQLdb.connect(database_host, database_username, database_password, database1)
+    dbc = db.cursor()
+    # 编码问题
+    db.set_character_set('utf8')
+    dbc.execute('SET NAMES utf8;')
+    dbc.execute('SET CHARACTER SET utf8;')
+    dbc.execute('SET character_set_connection=utf8;')
+    resultList = []
+    sql = "SELECT * FROM record_list ORDER BY addTime DESC "
+    dbc.execute(sql,())
+    queryList = dbc.fetchall()
+    if len(queryList) > 0:
+        for item in queryList:
+            imageUrls=[]
+            if item[5]:
+                ids = item[5].replace("[","")
+                ids = ids.replace("]","")
+                atSql = 'select url from attachment where id in (%s)'%ids
+                dbc.execute(atSql)
+                urlData = dbc.fetchall()
+                if len(urlData) > 0:
+                    for urlItem in urlData:
+                        imageUrls.append(urlItem[0])
+            resultList.append({
+                "id": item[0],
+                "content": item[1],
+                "lat": item[2],
+                "lon": item[3],
+                "add_time": item[6].strftime('%Y-%m-%d'),
+                "imageUrls": imageUrls,
+            })
+    dbc.close()
+    db.close()
+    response = cors_response({'code': 0, 'msg': '', 'content': resultList})
+    return response

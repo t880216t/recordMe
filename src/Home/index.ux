@@ -1,164 +1,181 @@
 <template>
     <!-- template里只能有一个根节点 -->
     <stack>
-        <map if="{{!showList}}" style="width:{{width}}; height:{{height}}" latitude="{{latitude}}" longitude="{{longitude}}" scale="{{scale}}" coordtype="{{coordtype}}"></map>
-        <div if="{{showList}}">
-            <list class="list-content" onscroll="handleScroll" onscrollbottom="scrollbottom" id="list" scrollpage="{{scrollPage}}" style="columns:{{columnsNum}}">
-                <!-- 列表元素，属性type值相同时，需要确保渲染中dom结构相同 -->
-                <list-item type="listItem" class="item item-color" for="{{listData}}">
-                <text class="txt">{{$item}}--{{$idx}}</text>
-                </list-item>
-        
-                <!-- 加载更多 -->
-                <list-item type="loadMore" class="load-more" if="{{loadMore}}" style="column-span:{{columnsNum}}">
-                <progress type="circular"></progress>
-                <text>加载更多</text>
-                </list-item>
-            </list>
-        </div>
-        <div class="container">
-            <div class="header-container">
-                <div class="avatar-container">
-                    <img src="https://avatars3.githubusercontent.com/u/16489708?s=460&v=4" alt="" class="avatar"/>
+        <map if="{{!showList}}" id="map" showmylocation="{{showmylocation}}" @tap="tap">
+            <div if="{{showList}}">
+                <list class="list-content" onscroll="handleScroll" onscrollbottom="scrollbottom" id="list" scrollpage="{{scrollPage}}" style="columns:{{columnsNum}}">
+                    <!-- 列表元素，属性type值相同时，需要确保渲染中dom结构相同 -->
+                    <list-item type="listItem" class="item item-color" for="{{listData}}">
+                        <text class="txt">{{$item}}--{{$idx}}</text>
+                    </list-item>
+
+                    <!-- 加载更多 -->
+                    <list-item type="loadMore" class="load-more" if="{{loadMore}}" style="column-span:{{columnsNum}}">
+                        <progress type="circular"></progress>
+                        <text>加载更多</text>
+                    </list-item>
+                </list>
+            </div>
+            <div class="container">
+                <div class="header-container">
+                    <div class="avatar-container">
+                        <img src="https://avatars3.githubusercontent.com/u/16489708?s=460&v=4" alt="" class="avatar" />
+                    </div>
+                    <div class="name-container">
+                        <text class="name">未知目标</text>
+                    </div>
+                    <div if="{{!showList}}" class="icon-container" onclick="getCenterLocation">
+                        <img src="../Images/pai.png" alt="" class="write-icon" />
+                    </div>
+                    <div if="{{showList}}" class="icon-container" />
                 </div>
-                <div class="name-container">
-                    <text class="name">未知目标</text>
-                </div>
-                <div class="icon-container" onclick="routeDetail">
-                    <img src="../Images/pai.png" alt="" class="write-icon"/>
+                <div class="type-container" onclick="handleShowList">
+                    <img if="{{!showList}}" src="../Images/list.png" alt="" class="type-icon" />
+                    <img if="{{showList}}" src="../Images/map.png" alt="" class="type-icon" />
                 </div>
             </div>
-            <div class="type-container" onclick="handleShowList">
-                <img if="{{!showList}}" src="../Images/list.png" alt="" class="type-icon"/>
-                <img if="{{showList}}" src="../Images/map.png" alt="" class="type-icon"/>
-            </div>
-        </div>
     </stack>
 </template>
 
 <style>
-.container {
-    width: 100%;
-    flex-direction: column;
-}
+    .container {
+        width: 100%;
+        flex-direction: column;
+    }
 
-.header-container{
-    padding: 15px;
-    flex-direction: row;
-    height: 140px;
-    width: 100%;
-    background-color: bisque;
-}
+    .header-container {
+        padding: 15px;
+        flex-direction: row;
+        height: 140px;
+        width: 100%;
+        background-color: bisque;
+    }
 
-.avatar-container{
-    flex:1;
-    padding:5px;
-}
+    .avatar-container {
+        flex: 1;
+        padding: 5px;
+    }
 
-.avatar{
-    height: 100px;
-    width: 100px;
-    border-radius: 50px;
-}
+    .avatar {
+        height: 100px;
+        width: 100px;
+        border-radius: 50px;
+    }
 
-.name-container{
-    flex:1;
-    justify-content: center;
-    align-items: center;
-}
+    .name-container {
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+    }
 
-.name{
-    font-size: 30px;
-    font-weight: bold;
-}
+    .name {
+        font-size: 30px;
+        font-weight: bold;
+    }
 
-.icon-container{
-    flex:1;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 20px;
-}
+    .icon-container {
+        flex: 1;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 20px;
+    }
 
-.icon-container:active{
-    background-color: #dfe6e9;
-}
-.write-icon{
-    height: 50px;
-    width: 50px;
-}
+    .icon-container:active {
+        background-color: #dfe6e9;
+    }
 
-.type-icon{
-    height: 70px;
-    width: 70px;
-    padding: 10px;
-}
+    .write-icon {
+        height: 50px;
+        width: 50px;
+    }
 
-.type-container{
-    width: 100%;
-    justify-content: flex-end;
-    padding: 20px;
-}
+    .type-icon {
+        height: 70px;
+        width: 70px;
+        padding: 10px;
+    }
 
-.btn {
-    width: 550px;
-    height: 86px;
-    margin-top: 75px;
-    border-radius: 43px;
-    background-color: #09ba07;
-    font-size: 30px;
-    color: #ffffff;
-}
-.item-color {
-    background-color: #f76160;
-}
-.load-more {
-    justify-content: center;
-    align-items: center;
-    height: 100px;
-    border-color: #bbbbbb;
-    border-bottom-width: 1px;
-}
-.list-content {
-    flex: 1;
-    padding-top: 150px;
-}
-.item {
-    height: 150px;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 15px;
-}
+    .type-container {
+        width: 100%;
+        justify-content: flex-end;
+        padding: 20px;
+    }
+
+    .btn {
+        width: 550px;
+        height: 86px;
+        margin-top: 75px;
+        border-radius: 43px;
+        background-color: #09ba07;
+        font-size: 30px;
+        color: #ffffff;
+    }
+
+    .item-color {
+        background-color: #f76160;
+    }
+
+    .load-more {
+        justify-content: center;
+        align-items: center;
+        height: 100px;
+        border-color: #bbbbbb;
+        border-bottom-width: 1px;
+    }
+
+    .list-content {
+        flex: 1;
+        padding-top: 150px;
+    }
+
+    .item {
+        height: 150px;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+    }
 </style>
 
 <script>
-import router from '@system.router'
-const BEI_JING_WGS = { latitude: 39.9073728469, longitude: 116.3913445961, coordType: "wgs84" }
-export default {
-    // 页面级组件的数据模型，影响传入数据的覆盖机制：private内定义的属性不允许被覆盖
-    private: {
-        title: '示例页面',
-        width: "100%",
-        height: "100%",
-        latitude: BEI_JING_WGS.latitude,
-        longitude: BEI_JING_WGS.longitude,
-        coordtype: BEI_JING_WGS.coordType,
-        scale: 1,
-        showList:false,
-        listAdd: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
-        listData: [],
-    },
-    onInit () {
-        // 初始化列表数据
-        this.listData = [].concat(this.listAdd)
-      },
-    routeDetail () {
-    // 跳转到应用内的某个页面，router用法详见：文档->接口->页面路由
-        router.push ({
-            uri: '/Add'
-        })
-    },
-    handleShowList(){
-        this.showList = !this.showList
+    import router from '@system.router'
+    import prompt from '@system.prompt'
+
+    export default {
+        // 页面级组件的数据模型，影响传入数据的覆盖机制：private内定义的属性不允许被覆盖
+        private: {
+            title: '示例页面',
+            showList: false,
+            listAdd: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
+            listData: [],
+            showmylocation: true
+        },
+        onInit() {
+            // 初始化列表数据
+            this.listData = [].concat(this.listAdd)
+        },
+        routeDetail(latitude, longitude) {
+            // 跳转到应用内的某个页面，router用法详见：文档->接口->页面路由
+            router.push({
+                uri: '/Add',
+                params: { latitude: latitude, longitude: longitude }
+            })
+        },
+        handleShowList() {
+            this.showList = !this.showList
+        },
+        getCenterLocation: function () {
+            this.$element("map").moveToMyLocation()
+            var that = this;
+            setTimeout(function () {
+                this.$element('map').getCenterLocation({
+                    success: function (res) {
+                        if (res.latitude && res.longitude) {
+                            that.routeDetail(res.latitude, res.longitude)
+                        }
+                    }
+                })
+            }.bind(this), 500)
+
+        }
     }
-}
 </script>
