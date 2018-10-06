@@ -154,7 +154,6 @@
                 key: 'islogin',
                 success: function (data) {
                     console.log('handling success')
-                    console.log('++++++++', data)
                 },
                 fail: function (data, code) {
                     console.log(`handling fail, code = ${code}`)
@@ -206,7 +205,7 @@
                 attachment_ids = ids
             }
             fetch.fetch({
-                url: 'http://192.168.0.105:5000/submitRecord',
+                url: 'http://192.168.0.106:5000/submitRecord',
                 method: 'POST',
                 data: {
                     "content": this.content,
@@ -240,7 +239,7 @@
                 let attachment_ids = ""
                 if (this.files.length > 0) {
                     request.upload({
-                        url: 'http://192.168.0.105:5000/uploadRecordImages',
+                        url: 'http://192.168.0.106:5000/uploadRecordImages',
                         files: this.files,
                         success: function (response) {
                             const data = JSON.parse(response.data)
