@@ -7,7 +7,12 @@
             <list class="list-content" onscroll="handleScroll" onscrollbottom="scrollbottom" id="list" scrollpage="{{scrollPage}}" style="columns:{{columnsNum}}">
                 <!-- 列表元素，属性type值相同时，需要确保渲染中dom结构相同 -->
                 <list-item type="listItem" class="item item-color" for="{{listData}}">
-                    <text class="txt">{{$item.content}}--{{$idx}}</text>
+                    <text class="txt">{{$item.content}}</text>
+                    <div class="image-container">
+                        <div class="image-item" for="url in $item.imageUrls">
+                            <image src="{{url}}" alt="" class="detail-icon" />
+                        </div>
+                    </div>
                 </list-item>
 
                 <!-- 加载更多 -->
@@ -31,8 +36,8 @@
                 <div if="{{showList}}" class="icon-container" />
             </div>
             <div class="type-container">
-                <img if="{{!showList}}" src="../Images/list.png" alt="" class="type-icon"  onclick="handleShowList" />
-                <img if="{{showList}}" src="../Images/map.png" alt="" class="type-icon"  onclick="handleShowList" />
+                <img if="{{!showList}}" src="../Images/list.png" alt="" class="type-icon" onclick="handleShowList" />
+                <img if="{{showList}}" src="../Images/map.png" alt="" class="type-icon" onclick="handleShowList" />
             </div>
         </div>
         <div if="{{showDetail}}" class="method">
@@ -148,10 +153,10 @@
     }
 
     .item {
-        height: 150px;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
+        padding: 20px;
+        flex-direction: column;
+        flex-wrap: wrap;
     }
 
     .method {
@@ -197,6 +202,9 @@
     .image-item {
         margin-right: 20px;
     }
+    .txt{
+        color: #000000;
+    }
 </style>
 
 <script>
@@ -234,8 +242,8 @@
             })
         },
         handleShowList() {
-            if(!this.showList){
-                this.showDetail = false 
+            if (!this.showList) {
+                this.showDetail = false
             }
             this.showList = !this.showList
         },

@@ -119,7 +119,7 @@ def getRecordList():
                 urlData = dbc.fetchall()
                 if len(urlData) > 0:
                     for urlItem in urlData:
-                        imageUrls.append(urlItem[0])
+                        imageUrls.append('http://192.168.0.106:5000'+urlItem[0])
             resultList.append({
                 "id": item[0],
                 "content": item[1],
