@@ -4,19 +4,19 @@
         <map if="{{!showList}}" id="map" markers="{{markers}}" @markertap="markerTap" showmylocation="{{showmylocation}}" @tap="tap"
         />
         <div if="{{showList}}">
-            <list class="list-content" onscroll="handleScroll" onscrollbottom="scrollbottom" id="list" scrollpage="{{scrollPage}}" style="columns:{{columnsNum}}">
+            <list class="list-content" onscroll="handleScroll" onscrollbottom="scrollbottom" id="list" scrollpage="{{scrollPage}}">
                 <!-- 列表元素，属性type值相同时，需要确保渲染中dom结构相同 -->
                 <list-item type="listItem" class="item item-color" for="{{listData}}">
                     <text class="txt">{{$item.content}}</text>
-                    <div class="image-container">
+                    <div class="image-container" if="$item.imageUrls">
                         <div class="image-item" for="url in $item.imageUrls">
-                            <image src="{{url}}" alt="" class="detail-icon" />
+                            <image if="{{url}}" src="{{url}}" alt="" class="detail-icon" />
                         </div>
                     </div>
                 </list-item>
 
                 <!-- 加载更多 -->
-                <list-item type="loadMore" class="load-more" if="{{loadMore}}" style="column-span:{{columnsNum}}">
+                <list-item type="loadMore" class="load-more" if="{{loadMore}}">
                     <progress type="circular"></progress>
                     <text>加载更多</text>
                 </list-item>
@@ -24,7 +24,7 @@
         </div>
         <div class="container">
             <div class="header-container">
-                <div class="avatar-container">
+                <div class="avatar-container" onclick="goProfile">
                     <img src="https://avatars3.githubusercontent.com/u/16489708?s=460&v=4" alt="" class="avatar" />
                 </div>
                 <div class="name-container">
@@ -156,7 +156,6 @@
         margin-bottom: 10px;
         padding: 20px;
         flex-direction: column;
-        flex-wrap: wrap;
     }
 
     .method {
@@ -186,7 +185,10 @@
     }
 
     .image-container {
+        flex-wrap: wrap;
+        padding-left: 30px;
         padding-top: 30px;
+        padding-bottom: 30px;
     }
 
     .content-label {
@@ -195,14 +197,16 @@
     }
 
     .detail-icon {
+        margin-bottom: 10px;
         height: 200px;
         width: 200px;
     }
 
     .image-item {
-        margin-right: 20px;
+        margin-right: 10px;
     }
-    .txt{
+
+    .txt {
         color: #000000;
     }
 </style>
@@ -211,6 +215,7 @@
     import router from '@system.router'
     import prompt from '@system.prompt'
     import fetch from '@system.fetch'
+    import storage from '@system.storage'
 
     export default {
         // 页面级组件的数据模型，影响传入数据的覆盖机制：private内定义的属性不允许被覆盖
@@ -227,12 +232,21 @@
                 "lat": "",
                 "lon": "",
                 "add_time": "",
-                "imageUrls": [],
-            }
+                "imageUrls": null,
+            },
         },
         onInit() {
             // 初始化列表数据
             this.getRecord()
+        },
+        onShow() {
+            // 页面被切换显示时，从数据中检查是否有页面B传递来的数据
+            if (this.$app.$data.Add && this.$app.$data.Add.gotoPage === 'Home') {
+                // 从数据中获取回传给本页面的数据
+                const data = this.$app.$data.Add.params
+                this.$app.$data.Add = {}
+                this.getRecord()
+            }
         },
         routeDetail(latitude, longitude) {
             // 跳转到应用内的某个页面，router用法详见：文档->接口->页面路由
@@ -330,6 +344,30 @@
         },
         closeDetail() {
             this.showDetail = false
+        },
+        goProfile() {
+            storage.get({
+                key: 'islogin',
+                success: function (data) {
+                    console.log('handling success')
+                    if (data === "true") {
+                        storage.set({
+                            key: 'islogin',
+                            value: false,
+                        })
+                    } else {
+                        router.push({
+                            uri: '/Login',
+                        })
+                    }
+                },
+                fail: function (data, code) {
+                    console.log(`handling fail, code = ${code}`)
+                    prompt.showToast({
+                        message: "获取登录状态异常"
+                    })
+                }
+            })
         }
     }
 </script>

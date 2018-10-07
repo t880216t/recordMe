@@ -28,7 +28,8 @@
     }
   ],
   "config": {
-    "logLevel": "debug"
+    "logLevel": "debug",
+    "data":{}
   },
   "router": {
     "entry": "Home",
@@ -47,6 +48,12 @@
       },
       "About": {
         "component": "index"
+      },
+      "Login": {
+        "component": "index"
+      },
+      "Register":{
+        "component": "index"
       }
     }
   },
@@ -64,6 +71,14 @@
         "titleBarText": "新建",
         "menu": false,
         "titleBar": false
+      },
+      "Login": {
+        "titleBarText": "登录",
+        "menu": false
+      },
+      "Register": {
+        "titleBarText": "注册",
+        "menu": false
       },
       "Demo": {
         "titleBarText": "示例页",

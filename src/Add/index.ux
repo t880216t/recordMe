@@ -35,13 +35,14 @@
         padding-left: 40px;
         padding-bottom: 40px;
         height: 300px;
-        max-height: 500px;
+        width: 100%;
     }
 
     .textarea {
         font-size: 35px;
-        padding-left: 40px;
-        padding-right: 40px;
+        margin-right: 40px;
+        width: 100%;
+
     }
 
     .item-image {
@@ -94,7 +95,7 @@
         height: 40px;
         width: 20px;
         margin-right: 30px;
-        resize-mode: contain;
+        resize: contain;
     }
 
     .item-li-detail {
@@ -121,8 +122,8 @@
 
     export default {
         protected: {
-            latitude:'',
-            longitude:''
+            latitude: '',
+            longitude: ''
         },
         private: {
             content: '',
@@ -160,8 +161,8 @@
                 }
             })
         },
-        onShow(){
-            
+        onShow() {
+
         },
         valueChange(e) {
             this.content = e.text
@@ -200,6 +201,7 @@
             router.back()
         },
         submitRecord(ids) {
+            var that = this
             let attachment_ids = ''
             if (ids) {
                 attachment_ids = ids
@@ -221,6 +223,13 @@
                             prompt.showToast({
                                 message: '上传成功'
                             })
+                            // 页面被切换隐藏时，将要传递的数据对象写入
+                            that.$app.$data.Add = {
+                                gotoPage: 'Home',
+                                params: {
+                                    msg: "提交成功"
+                                }
+                            }
                             router.back()
                         } else {
                             prompt.showToast({
