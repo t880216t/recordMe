@@ -28,7 +28,7 @@
                     <img src="https://avatars3.githubusercontent.com/u/16489708?s=460&v=4" alt="" class="avatar" />
                 </div>
                 <div class="name-container">
-                    <text class="name">未知目标</text>
+                    <text class="name">{{username}}</text>
                 </div>
                 <div if="{{!showList}}" class="icon-container" onclick="getCenterLocation">
                     <img src="../Images/pai.png" alt="" class="write-icon" />
@@ -226,6 +226,9 @@
             showmylocation: true,
             showDetail: false,
             markers: [],
+            username: '未登录',
+            userId: '',
+            isLogin: false,
             detailData: {
                 "id": "",
                 "content": "",
@@ -237,7 +240,7 @@
         },
         onInit() {
             // 初始化列表数据
-            this.getRecord()
+            this.getUserInfo()
         },
         onShow() {
             // 页面被切换显示时，从数据中检查是否有页面B传递来的数据
@@ -278,8 +281,11 @@
         getRecord() {
             var that = this
             fetch.fetch({
-                url: 'http://192.168.0.106:5000/getRecordList',
-                method: 'GET',
+                url: 'http://192.168.30.41:5000/getRecordList',
+                method: 'POST',
+                data: {
+                    userId: this.userId
+                },
                 success: function (response) {
                     if (response) {
                         const res = JSON.parse(response.data)
@@ -320,7 +326,7 @@
             var that = this;
             this.showDetail = true
             fetch.fetch({
-                url: 'http://192.168.0.106:5000/getRecordDetail',
+                url: 'http://192.168.30.41:5000/getRecordDetail',
                 method: 'POST',
                 data: {
                     "detailId": res.markerId
@@ -345,21 +351,19 @@
         closeDetail() {
             this.showDetail = false
         },
-        goProfile() {
+        getUserInfo() {
+            var that = this
             storage.get({
-                key: 'islogin',
+                key: 'userInfo',
                 success: function (data) {
-                    console.log('handling success')
-                    if (data === "true") {
-                        storage.set({
-                            key: 'islogin',
-                            value: false,
-                        })
-                    } else {
-                        router.push({
-                            uri: '/Login',
-                        })
+                    if (data) {
+                        const newdata = JSON.parse(data)
+                        that.username = newdata.username
+                        that.userId = newdata.userId
+                        that.isLogin = newdata.isLogin
+                        that.$app.$data.userId = newdata.userId
                     }
+                    that.getRecord()
                 },
                 fail: function (data, code) {
                     console.log(`handling fail, code = ${code}`)
@@ -368,6 +372,25 @@
                     })
                 }
             })
+        },
+        goProfile() {
+            if (this.isLogin) {
+                var that = this
+                storage.set({
+                    key: 'userInfo',
+                    value: null,
+                    success: function (data) {
+                        that.isLogin = false
+                    }
+                })
+                prompt.showToast({
+                    message: "清除登录状态"
+                })
+            } else {
+                router.push({
+                    uri: '/Login',
+                })
+            }
         }
     }
 </script>

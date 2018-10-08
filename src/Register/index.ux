@@ -42,15 +42,17 @@
     font-size: 30px;
     color: #000000;
   }
-  .help-container{
+
+  .help-container {
     margin-top: 30px;
     flex-direction: row;
     width: 80%;
-    padding:30px;
+    padding: 30px;
     justify-content: flex-end;
   }
-  .href-txt{
-    color:blue;
+
+  .href-txt {
+    color: blue;
   }
 </style>
 
@@ -65,7 +67,7 @@
     private: {
       userName: '',
       password: '',
-      email:''
+      email: ''
     },
     accountChange(e) {
       this.userName = e.text
@@ -82,30 +84,27 @@
           message: "账号/密码不可为空"
         })
       }
+      var that = this
       fetch.fetch({
-        url: 'http://192.168.0.106:5000/register',
+        url: 'http://192.168.30.41:5000/register',
         method: 'POST',
         data: {
           "username": this.userName,
           "password": this.password,
-          "email":this.password
+          "email": this.password
         },
         success: function (response) {
           if (response) {
             const res = JSON.parse(response.data)
             if (res.code === 0) {
-              storage.set({
-                key: 'islogin',
-                value: true,
-                success: function (data) {
-                  console.log('handling success')
-                  router.push({
-                    uri: '/Home'
-                  })
-                },
-                fail: function (data, code) {
-                  console.log(`handling fail, code = ${code}`)
+              router.push({
+                uri: '/Login',
+                params: {
+                  regUserName: that.userName
                 }
+              })
+              prompt.showToast({
+                message: that.userName
               })
             } else {
               prompt.showToast({

@@ -66,10 +66,18 @@
   import storage from '@system.storage'
 
   export default {
+    protected: {
+      regUserName: null
+    },
     // 页面级组件的数据模型，影响传入数据的覆盖机制：private内定义的属性不允许被覆盖
     private: {
       userName: '',
       password: ''
+    },
+    onInit() {
+      if (this.regUserName) {
+        this.userName = this.regUserName
+      }
     },
     routeDetail() {
       // 跳转到应用内的某个页面，router用法详见：文档->接口->页面路由
@@ -89,8 +97,9 @@
           message: "账号/密码不可为空"
         })
       }
+      var that = this
       fetch.fetch({
-        url: 'http://192.168.0.106:5000/signin',
+        url: 'http://192.168.30.41:5000/signin',
         method: 'POST',
         data: {
           "username": this.userName,
@@ -101,10 +110,10 @@
             const res = JSON.parse(response.data)
             if (res.code === 0) {
               storage.set({
-                key: 'islogin',
-                value: true,
+                key: 'userInfo',
+                value: JSON.stringify({isLogin:true,userId:res.userID,username:res.userName}),
                 success: function (data) {
-                  console.log('handling success')
+                  that.$app.$data.userId = res.userID
                   router.push({
                     uri: '/Home'
                   })
@@ -112,6 +121,9 @@
                 fail: function (data, code) {
                   console.log(`handling fail, code = ${code}`)
                 }
+              })
+              prompt.showToast({
+                message: res.msg
               })
             } else {
               prompt.showToast({

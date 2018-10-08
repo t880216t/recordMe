@@ -206,15 +206,20 @@
             if (ids) {
                 attachment_ids = ids
             }
+            let userId = ''
+            if(that.$app.$data.userId){
+                userId = that.$app.$data.userId
+            }
             fetch.fetch({
-                url: 'http://192.168.0.106:5000/submitRecord',
+                url: 'http://192.168.30.41:5000/submitRecord',
                 method: 'POST',
                 data: {
                     "content": this.content,
                     "showType": this.showType,
                     "attachmentIds": attachment_ids,
                     "lat": this.latitude,
-                    "lon": this.longitude
+                    "lon": this.longitude,
+                    "userId": userId,
                 },
                 success: function (response) {
                     if (response) {
@@ -248,7 +253,7 @@
                 let attachment_ids = ""
                 if (this.files.length > 0) {
                     request.upload({
-                        url: 'http://192.168.0.106:5000/uploadRecordImages',
+                        url: 'http://192.168.30.41:5000/uploadRecordImages',
                         files: this.files,
                         success: function (response) {
                             const data = JSON.parse(response.data)
