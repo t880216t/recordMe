@@ -8,6 +8,7 @@ from app import app
 from flask import request
 from app.database_config import *
 from werkzeug.utils import secure_filename
+from sec import prpcrypt
 
 
 # 狗跨域
@@ -31,6 +32,16 @@ def submitRecord():
     attachmentIds = request.values.get("attachmentIds")
     lat = request.values.get("lat")
     lon = request.values.get("lon")
+    userId = request.values.get("userId")
+    if userId == u'' or userId == None:
+        response = cors_response({'code':10001, 'msg': '添加失败'})
+        return response
+    try:
+        pc = prpcrypt('lovechentiantian')  # 初始化密钥
+        secId = pc.decrypt(userId)
+    except:
+        response = cors_response({'code': 10001, 'msg': '添加失败'})
+        return response
     if content:
         # 连接
         db = MySQLdb.connect(database_host, database_username, database_password, database1)
@@ -41,8 +52,8 @@ def submitRecord():
         dbc.execute('SET CHARACTER SET utf8;')
         dbc.execute('SET character_set_connection=utf8;')
         # 入库
-        sql = 'insert into record_list (content,showType,attachmentIds,lat,lon) VALUES (%s,%s,%s,%s,%s)'
-        dbc.execute(sql, (content, showType, attachmentIds, lat, lon))
+        sql = 'insert into record_list (content,showType,attachmentIds,lat,lon,userId) VALUES (%s,%s,%s,%s,%s,%s)'
+        dbc.execute(sql, (content, showType, attachmentIds, lat, lon,secId))
         db.commit()
         dbc.close()
         db.close()
@@ -96,6 +107,13 @@ def uploadRecordImages():
 
 @app.route("/getRecordList", methods=["POST", "GET"])
 def getRecordList():
+    userId = request.values.get("userId")
+    try:
+        pc = prpcrypt('lovechentiantian')  # 初始化密钥
+        secId = pc.decrypt(userId)
+    except:
+        response = cors_response({'code': 0, 'msg': '还没有信息', 'content': []})
+        return response
     # 连接
     db = MySQLdb.connect(database_host, database_username, database_password, database1)
     dbc = db.cursor()
@@ -105,8 +123,8 @@ def getRecordList():
     dbc.execute('SET CHARACTER SET utf8;')
     dbc.execute('SET character_set_connection=utf8;')
     resultList = []
-    sql = "SELECT * FROM record_list ORDER BY addTime DESC "
-    dbc.execute(sql, ())
+    sql = "SELECT * FROM record_list WHERE userId = %s or showType = '对所有人公开' ORDER BY addTime DESC "
+    dbc.execute(sql, (secId))
     queryList = dbc.fetchall()
     if len(queryList) > 0:
         for item in queryList:
@@ -119,7 +137,7 @@ def getRecordList():
                 urlData = dbc.fetchall()
                 if len(urlData) > 0:
                     for urlItem in urlData:
-                        imageUrls.append('http://192.168.0.106:5000'+urlItem[0])
+                        imageUrls.append('http://192.168.30.41:5000'+urlItem[0])
             resultList.append({
                 "id": item[0],
                 "content": item[1],
@@ -161,7 +179,7 @@ def getRecordDetail():
         urlData = dbc.fetchall()
         if len(urlData) > 0:
             for urlItem in urlData:
-                imageUrls.append('http://192.168.0.106:5000'+urlItem[0])
+                imageUrls.append('http://192.168.30.41:5000'+urlItem[0])
     result = {
         "id":data[0],
         "content": data[1],

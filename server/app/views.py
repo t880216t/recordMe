@@ -4,6 +4,7 @@ import MySQLdb
 from flask import request, jsonify
 from flask import make_response
 from database_config import *
+from sec import prpcrypt
 
 @app.route('/')
 @app.route('/index')
@@ -65,6 +66,15 @@ def register():
         dbc.execute('SET CHARACTER SET utf8;')
         dbc.execute('SET character_set_connection=utf8;')
 
+        verif_sql = 'select * from users WHERE username = %s'
+        dbc.execute(verif_sql, (username,))
+        verif_list = dbc.fetchone()
+        if verif_list != None:
+            dbc.close()
+            db.close()
+            response = cors_response({"code": 10001, "msg": "用户登录名重复"})
+            return response
+
         hash_password, salt = encrypt_password(password)
         dbc.execute('INSERT INTO users (username,hash_password,salt,email) VALUES (%s,%s,%s,%s)',
                     (username, hash_password, salt, email))
@@ -102,8 +112,9 @@ def signin():
             dbc.execute('SELECT `id`,`salt`,`hash_password` FROM users WHERE username = %s', (username,))
             id,salt, hash_password = dbc.fetchone()
             if encrypt_password(password, salt)[0] == hash_password:
-
-                response = make_response(jsonify({'code': 0, 'msg': '登录成功','userID':id,'userName':username}))
+                pc = prpcrypt('lovechentiantian')  # 初始化密钥
+                secId = pc.encrypt(str(id))
+                response = make_response(jsonify({'code': 0, 'msg': '登录成功','userID':secId,'userName':username}))
                 response.headers['Access-Control-Allow-Origin'] = '*'
                 response.headers['Access-Control-Allow-Methods'] = 'POST'
                 response.headers['Access-Control-Allow-Headers'] = 'x-requested-with,content-type'
